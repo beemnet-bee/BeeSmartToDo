@@ -1,0 +1,5 @@
+{
+  "name": "Bee Smart To-Do",
+  "description": "Your hive of productivity. A smart to-do list that uses the Gemini API to parse single or multiple tasks from natural language.",
+  "requestFramePermissions": ["notifications"]
+}

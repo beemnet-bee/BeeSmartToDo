@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bee Smart To-Do</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0"
+  }
+}
+</script>
+    <style>
+      body {
+        background-color: #0a0a0f;
+      }
+      .grid-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        background-color: #0a0a0f;
+        background-image:
+            linear-gradient(rgba(163, 230, 53, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(163, 230, 53, 0.1) 1px, transparent 1px);
+        background-size: 35px 35px;
+        animation: pan-grid 60s linear infinite;
+      }
+      @keyframes pan-grid {
+        from { background-position: 0 0; }
+        to { background-position: 35px 70px; }
+      }
+    </style>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body class="text-slate-200">
+    <div class="grid-bg"></div>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
