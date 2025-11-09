@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bee Smart To-Do</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -53,6 +53,29 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background-color: #bef264; /* lime-300 */
+      }
+      /* Animated Strikethrough */
+      .task-text {
+        position: relative;
+        transition: color 0.3s ease;
+      }
+      .task-text::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: #a3e635; /* lime-400 */
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+      }
+      .task-text.completed {
+        color: #64748b; /* slate-500 */
+      }
+      .task-text.completed::after {
+        transform: scaleX(1);
       }
     </style>
   <link rel="stylesheet" href="/index.css">

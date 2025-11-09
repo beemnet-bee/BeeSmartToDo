@@ -1,5 +1,5 @@
 import React from 'react';
-import { BeeIcon } from './icons/BeeIcon';
+import Logo from './Logo';
 
 const SplashScreen: React.FC = () => {
   return (
@@ -21,16 +21,23 @@ const SplashScreen: React.FC = () => {
           .animate-popIn {
             animation: popIn 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
           }
+           @keyframes pulse-glow {
+            0%, 100% {
+              filter: drop-shadow(0 0 5px rgba(163, 230, 53, 0.4));
+            }
+            50% {
+              filter: drop-shadow(0 0 20px rgba(163, 230, 53, 0.8));
+            }
+          }
+          .animate-pulse-glow {
+              animation: pulse-glow 2s ease-in-out infinite;
+          }
         `}
       </style>
       <div className="text-center animate-popIn">
-        <div className="mx-auto mb-4 w-24 h-24">
-         <BeeIcon />
+        <div className="animate-pulse-glow">
+          <Logo size="large" />
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-lime-400 to-cyan-400 bg-clip-text text-transparent pb-2">
-          Bee Smart To-Do
-        </h1>
-        <p className="text-slate-400 mt-2 text-lg">Your hive of productivity</p>
       </div>
     </div>
   );

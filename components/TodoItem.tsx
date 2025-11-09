@@ -6,6 +6,7 @@ import { CATEGORIES, PRIORITIES } from '../constants';
 import { CalendarIcon } from './icons/CalendarIcon';
 import { BellIcon } from './icons/BellIcon';
 import CustomSelect from './CustomSelect';
+import Checkbox from './Checkbox';
 
 interface TodoItemProps {
   todo: Todo;
@@ -114,15 +115,13 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggleTodo, onDeleteTodo, o
   return (
     <div className={`flex items-start bg-slate-900/50 backdrop-blur-md p-4 rounded-xl border border-lime-400/20 border-l-4 ${priorityColors[todo.priority]} transition-all duration-300 hover:bg-slate-800/80 hover:border-lime-400/30 ${todo.completed ? 'opacity-50' : ''}`}>
       <div className="flex-shrink-0 pt-1">
-        <input
-          type="checkbox"
+        <Checkbox
           checked={todo.completed}
           onChange={() => onToggleTodo(todo.id)}
-          className="form-checkbox h-5 w-5 rounded-sm text-lime-500 bg-slate-700 border-slate-600 focus:ring-lime-500 focus:ring-offset-slate-900 cursor-pointer"
         />
       </div>
       <div className="ml-4 flex-grow">
-        <p className={`text-lg transition-colors ${todo.completed ? 'line-through text-slate-500' : 'text-slate-200'}`}>
+        <p className={`text-lg task-text ${todo.completed ? 'completed' : 'text-slate-200'}`}>
           {todo.text}
         </p>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
@@ -130,7 +129,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggleTodo, onDeleteTodo, o
                 {todo.category}
             </span>
             {todo.dueDate && (
-                <div className={`flex items-center gap-1.5 text-xs ${isOverdue ? 'text-red-400 font-semibold' : 'text-slate-400'}`}>
+                <div className={`flex items-center gap-1.5 text-xs transition-colors duration-300 ${isOverdue ? 'text-red-400 font-semibold' : 'text-slate-400'}`}>
                     <CalendarIcon />
                     <span>{new Date(todo.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</span>
                     {isOverdue && <span className="font-bold">(Overdue)</span>}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Todo, Category, Priority, SortOrder, CategoryFilter, PriorityFilter } from './types';
+import { Todo, Category, Priority, CategoryFilter, PriorityFilter } from './types';
 import { CATEGORIES, PRIORITIES } from './constants';
 import TodoForm from './components/TodoForm';
 import TodoList from './components/TodoList';
@@ -7,7 +7,6 @@ import FilterControls from './components/FilterControls';
 import Header from './components/Header';
 import { defaultTodos } from './constants';
 import SplashScreen from './components/SplashScreen';
-import SortControls from './components/SortControls';
 import Modal from './components/Modal';
 
 const App: React.FC = () => {
@@ -51,7 +50,7 @@ const App: React.FC = () => {
                     if (Notification.permission === 'granted') {
                         new Notification('Bee Smart To-Do Reminder', {
                             body: todo.text,
-                            icon: 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48c3R5bGU+LmJlZS1ib2R5e2ZpbGw6I2EzZTYzNTt9LmJlZS1zdHJpcGV7ZmlsbDojMGEwYTBmO30uYmVlLXdpbmd7ZmlsbDojRTVFN0VCO29wYWNpdHk6IDAuODt9LndpbmctbGVmdHthbmltYXRpb246IGZsYXAtbGVmdCAwLjJzIGluZmluaXRlIGFsdGVybmF0ZTt0cmFuc2Zvcm0tb3JpZ2luOiA1MHB4IDM1cHg7fS53aW5nLXJpZ2h0e2FuaW1hdGlvbjogZmxhcC1yaWdodCAwLjJzIGluZmluaXRlIGFsdGVybmF0ZTt0cmFuc2Zvcm0tb3JpZ2luOiA1MHB4IDM1cHg7fUBrZXlmcmFtZXMgZmxhcC1sZWZ0e2Zyb20te3RyYW5zZm9ybTpyb3RhdGUoLTE1ZGVnKX10b3t0cmFuc2Zvcm06cm90YXRlKDE1ZGVnKX19QGtleWZyYW1lcyBmbGFwLXJpZ2h0e2Zyb20te3RyYW5zZm9ybTpyb3RhdGUoMTVkZWcpfXRve3RyYW5zZm9ybTpyb3RhdGUoLTE1ZGVnKX19PC9zdHlsZT48Zz48cGF0aCBjbGFzcz0iYmVlLXdpbmcgwingLWxlZnQiIGQ9Ik0gNTAgMzUgQyAyMCAxMCwgMjAgNjAsIDUwIDM1IFoiLz48cGF0aCBjbGFzcz0iYmVlLXdpbmcgwingLXJpZ2h0IiBkPSJNIDUwIDM1IEMgODAgMTAsIDgwIDYwLCA1MCAzNSBaIi8+PC9nPjxlbGxpcHNlIGNsYXNzPSJiZWUtYm9keSIgY3g9IjUwIiBjeT0iNjAiIHJ4PSIyNSIgcnk9IjIwIi8+PHBhdGggY2xhc3M9ImJlZS1zdHJpcGUiIGQ9Ik0gNTAgNDUgQyA2NSA0NSwgNjUgNzUsIDUwIDc1IFMgMzUgNzUsIDM1IDQ1IiB0cmFuc2Zvcm09InNjYWxlKDAuOCwgMSkgdHJhbnNsYXRlKDEyLjUsIDApIi8+PHBhdGggY2xhc3M9ImJlZS1zdHJpcGUiIGQ9Ik0gNTAgNDUgQyA2NSA0NSwgNjUgNzUsIDUwIDc1IFMgMzUgNzUsIDM1IDQ1IiB0cmFuc2Zvcm09InNjYWxlKDAuNiwgMSkgdHJhbnNsYXRlKDMzLjMsIDApIi8+PGNpcmNsZSBmaWxsPSIjMGEwYTBmIiBjeD0iNDAiIGN5PSI1MCIgcHI9IjIiLz48Y2lyY2xlIGZpbGw9IiMwYTBhMGYiIGN4PSI2MCIgY3k9IjUwIiByPSIyIi8+PC9zdmc+'
+                            icon: 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48c3R5bGU+LmJlZS1ib2R5e2ZpbGw6I2EzZTYzNTt9LmJlZS1zdHJpcGV7ZmlsbDojMGEwYTBmO30uYmVlLXdpbmd7ZmlsbDojRTVFN0VCO29wYWNpdHk6IDAuODt9LndpbmctbGVmdHthbmltYXRpb246IGZsYXAtbGVmdCAwLjJzIGluZmluaXRlIGFsdGVybmF0ZTt0cmFuc2Zvcm0tb3JpZlnOiA1MHB4IDM1cHg7fS53aW5nLXJpZ2h0e2FuaW1hdGlvbjogZmxhcC1yaWdodCAwLjJzIGluZmluaXRlIGFsdGVybmF0ZTt0cmFuc2Zvcm0tb3JpZ2luOiA1MHB4IDM1cHg7fUBrZXlmcmFtZXMgZmxhcC1sZWZ0e2Zyb20te3RyYW5zZm9ybTpyb3RhdGUoLTE1ZGVnKX10b3t0cmFuc2Zvcm06cm90YXRlKDE1ZGVnKX19QGtleWZyYW1lcyBmbGFwLXJpZ2h0e2Zyb20te3RyYW5zZm9ybTpyb3RhdGUoMTVkZWcpfXRve3RyYW5zZm9ybTpyb3RhdGUoLTE1ZGVnKX19PC9zdHlsZT48Zz48cGF0aCBjbGFzcz0iYmVlLXdpbmcgwingLWxlZnQiIGQ9Ik0gNTAgMzUgQyAyMCAxMCwgMjAgNjAsIDUwIDM1IFoiLz48cGF0aCBjbGFzcz0iYmVlLXdpbmcgwingLXJpZ2h0IiBkPSJNIDUwIDM1IEMgODAgMTAsIDgwIDYwLCA1MCAzNSBaIi8+PC9nPjxlbGxpcHNlIGNsYXNzPSJiZWUtYm9keSIgY3g9IjUwIiBjeT0iNjAiIHJ4PSIyNSIgcnk9IjIwIi8+PHBhdGggY2xhc3M9ImJlZS1zdHJpcGUiIGQ9Ik0gNTAgNDUgQyA2NSA0NSwgNjUgNzUsIDUwIDc1IFMgMzUgNzUsIDM1IDQ1IiB0cmFuc2Zvcm09InNjYWxlKDAuOCwgMSkgdHJhbnNsYXRlKDEyLjUsIDApIi8+PHBhdGggY2xhc3M9ImJlZS1zdHJpcGUiIGQ9Ik0gNTAgNDUgQyA2NSA0NSwgNjUgNzUsIDUwIDc1IFMgMzUgNzUsIDM1IDQ1IiB0cmFuc2Zvcm09InNjYWxlKDAuNiwgMSkgdHJhbnNsYXRlKDMzLjMsIDApIi8+PGNpcmNsZSBmaWxsPSIjMGEwYTBmIiBjeD0iNDAiIGN5PSI1MCIgcHI9IjIiLz48Y2lyY2xlIGZpbGw9IiMwYTBhMGYiIGN4PSI2MCIgY3k9IjUwIiByPSIyIi8+PC9zdmc+'
                         });
                     }
                     setTriggeredReminders(prev => new Set(prev).add(todo.id));
@@ -74,7 +73,6 @@ const App: React.FC = () => {
   
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('All');
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('All');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
 
   const addTodo = useCallback((todo: Omit<Todo, 'id' | 'completed' | 'createdAt'>, closeModal?: () => void) => {
     const newTodo: Todo = {
@@ -136,8 +134,6 @@ const App: React.FC = () => {
   }, []);
 
   const displayedTodos = useMemo(() => {
-    const priorityValues: Record<Priority, number> = { [Priority.High]: 3, [Priority.Medium]: 2, [Priority.Low]: 1 };
-    
     return [...todos]
       .filter(todo => categoryFilter === 'All' || todo.category === categoryFilter)
       .filter(todo => priorityFilter === 'All' || todo.priority === priorityFilter)
@@ -145,22 +141,9 @@ const App: React.FC = () => {
         if (a.completed !== b.completed) {
           return a.completed ? 1 : -1;
         }
-
-        switch (sortOrder) {
-          case 'due_date':
-            if (!a.dueDate) return 1;
-            if (!b.dueDate) return -1;
-            return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-          case 'priority':
-            return priorityValues[b.priority] - priorityValues[a.priority];
-          case 'oldest':
-            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-          case 'newest':
-          default:
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        }
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-  }, [todos, categoryFilter, priorityFilter, sortOrder]);
+  }, [todos, categoryFilter, priorityFilter]);
 
   if (showSplash) {
     return <SplashScreen />;
@@ -183,7 +166,6 @@ const App: React.FC = () => {
                         onSelectPriority={setPriorityFilter}
                         onClearFilters={clearFilters}
                     />
-                    <SortControls selectedSort={sortOrder} onSelectSort={setSortOrder} />
                 </div>
             </div>
           
