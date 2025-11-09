@@ -1,86 +1,125 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { Category, Priority, Todo } from '../types';
 import { CATEGORIES, PRIORITIES } from '../constants';
 
-const API_KEY = process.env.API_KEY;
+// This is a local, rule-based parser to replace the Gemini API call.
+// It allows the "Smart Add" feature to work without an API key.
+// It's less powerful than the AI model but handles simple cases.
 
-if (!API_KEY) {
-    throw new Error("API_KEY environment variable not set");
-}
+/**
+ * Parses dates and times from a string.
+ * @param text The string to parse.
+ * @returns An object with dueDate, reminderDate, and the remaining text.
+ */
+const parseDates = (text: string): { dueDate?: string; reminderDate?: string; remainingText: string } => {
+    let remainingText = text;
+    let dueDate: string | undefined;
+    let reminderDate: string | undefined;
+    const now = new Date();
 
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+    // Simple relative dates for due date
+    if (/\b(due |by )?tomorrow\b/i.test(remainingText)) {
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate() + 1);
+        dueDate = tomorrow.toISOString().split('T')[0];
+        remainingText = remainingText.replace(/\b(due |by )?tomorrow\b/i, '');
+    } else if (/\b(due |by )?today\b/i.test(remainingText)) {
+        dueDate = now.toISOString().split('T')[0];
+        remainingText = remainingText.replace(/\b(due |by )?today\b/i, '');
+    }
 
-const taskSchema = {
-    type: Type.OBJECT,
-    properties: {
-        task: {
-            type: Type.STRING,
-            description: "The main action or to-do item, concisely described.",
-        },
-        category: {
-            type: Type.STRING,
-            enum: CATEGORIES,
-            description: "The most relevant category for the task."
-        },
-        priority: {
-            type: Type.STRING,
-            enum: PRIORITIES,
-            description: "The inferred priority of the task. Default to Medium if unsure."
-        },
-        dueDate: {
-            type: Type.STRING,
-            description: "The due date for the task in 'YYYY-MM-DD' format, if specified. Otherwise, omit this field."
-        },
-        reminderDate: {
-            type: Type.STRING,
-            description: "The reminder date and time in 'YYYY-MM-DDTHH:MM' format, if specified. Otherwise, omit this field."
+    // YYYY-MM-DD format for due date
+    const dateRegex = /(\d{4}-\d{2}-\d{2})/;
+    const dateMatch = remainingText.match(dateRegex);
+    if (dateMatch) {
+        dueDate = dateMatch[1];
+        remainingText = remainingText.replace(dateRegex, '');
+    }
+    
+    // HH:mm for reminder
+    const timeRegex = /(\d{1,2}:\d{2}(\s?[ap]m)?)/i;
+    const timeMatch = remainingText.match(timeRegex);
+    if (timeMatch) {
+        // Create a reminder for today at the specified time.
+        // If a due date is also present, it could be smarter, but this is a simple mock.
+        const reminder = new Date(dueDate || now);
+        let [hoursStr, minutesStr] = timeMatch[1].replace(/\s?[ap]m/i, '').split(':');
+        let hours = parseInt(hoursStr, 10);
+        
+        if (/pm/i.test(timeMatch[1]) && hours < 12) {
+            hours += 12;
         }
-    },
-    required: ["task", "category", "priority"]
-};
+        if (/am/i.test(timeMatch[1]) && hours === 12) { // Midnight case
+            hours = 0;
+        }
 
-const responseSchema = {
-    type: Type.ARRAY,
-    items: taskSchema
+        reminder.setHours(hours);
+        reminder.setMinutes(parseInt(minutesStr, 10));
+        reminder.setSeconds(0);
+        reminder.setMilliseconds(0);
+        
+        reminderDate = reminder.toISOString().slice(0, 16); // YYYY-MM-DDTHH:MM format
+        remainingText = remainingText.replace(timeRegex, '');
+    }
+    
+    return { dueDate, reminderDate, remainingText: remainingText.trim() };
 };
 
 export const parseTasksFromString = async (prompt: string): Promise<Omit<Todo, 'id' | 'completed' | 'createdAt'>[] | null> => {
     try {
-        const today = new Date().toISOString().split('T')[0];
-        const fullPrompt = `Analyze the following user request, which may contain multiple to-do items separated by newlines. For each item, extract a structured to-do object. Infer category, priority, and due date. The current date is ${today}. If a relative date like "tomorrow" or "next Friday" is mentioned, convert it to an absolute 'YYYY-MM-DD' format. If a specific time is mentioned, include it and format the reminder date as 'YYYY-MM-DDTHH:MM'. Return an array of these objects. Request:\n\n"${prompt}"`;
-        
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: fullPrompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: responseSchema,
-            },
-        });
-        
-        const jsonText = response.text.trim();
-        const parsedJson: any[] = JSON.parse(jsonText);
-
-        if (Array.isArray(parsedJson)) {
-            const validatedTasks = parsedJson.filter(item => 
-                item.task && item.category && item.priority &&
-                CATEGORIES.includes(item.category) && PRIORITIES.includes(item.priority)
-            ).map(item => ({
-                text: item.task,
-                category: item.category as Category,
-                priority: item.priority as Priority,
-                dueDate: item.dueDate || undefined,
-                reminderDate: item.reminderDate || undefined,
-            }));
-            
-            return validatedTasks.length > 0 ? validatedTasks : null;
+        const lines = prompt.split('\n').filter(line => line.trim() !== '');
+        if (lines.length === 0) {
+            return null;
         }
-        
-        console.error("Parsed JSON is not an array:", parsedJson);
-        return null;
+
+        const tasks = lines.map(line => {
+            let text = line.trim();
+            let category: Category = Category.Personal; // Default category
+            let priority: Priority = Priority.Medium; // Default priority
+
+            // Parse Category
+            for (const cat of CATEGORIES) {
+                const regex = new RegExp(`\\b${cat}\\b`, 'i');
+                if (regex.test(text)) {
+                    category = cat;
+                    text = text.replace(regex, '');
+                    break; 
+                }
+            }
+
+            // Parse Priority
+            if (/\b(high priority|high)\b/i.test(text)) {
+                priority = Priority.High;
+                text = text.replace(/\b(high priority|high)\b/i, '');
+            } else if (/\b(low priority|low)\b/i.test(text)) {
+                priority = Priority.Low;
+                text = text.replace(/\b(low priority|low)\b/i, '');
+            }
+
+            // Parse Dates and Times
+            const { dueDate, reminderDate, remainingText } = parseDates(text);
+            text = remainingText;
+
+            // Clean up common keywords and extra spaces
+            text = text.replace(/\b(task|for|at|due by|due|by|remind me)\b/gi, '')
+                       .replace(/\s\s+/g, ' ')
+                       .trim();
+
+            return {
+                text: text || "Untitled Task",
+                category,
+                priority,
+                dueDate,
+                reminderDate,
+            };
+        });
+
+        // Simulate async network request for better UX (shows loading spinner)
+        await new Promise(resolve => setTimeout(resolve, 750));
+
+        return tasks.length > 0 ? tasks : null;
 
     } catch (error) {
-        console.error("Error calling Gemini API:", error);
-        throw new Error("Failed to parse tasks with AI. Please check your phrasing or use the manual form.");
+        console.error("Error parsing tasks locally:", error);
+        throw new Error("Failed to parse tasks. Please check your phrasing or use the manual form.");
     }
 };
