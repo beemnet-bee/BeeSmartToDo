@@ -23,10 +23,11 @@ const categoryColors: { [key in Category]: string } = {
   [Category.Other]: 'bg-slate-500/10 text-slate-300 border border-slate-500/20',
 };
 
-const priorityColors: { [key in Priority]: string } = {
-  [Priority.High]: 'border-lime-400',
-  [Priority.Medium]: 'border-cyan-400',
-  [Priority.Low]: 'border-slate-600',
+// Use specific border-t-* classes for better purging and clarity
+const priorityBorderColors: { [key in Priority]: string } = {
+  [Priority.High]: 'border-t-red-500',
+  [Priority.Medium]: 'border-t-yellow-500',
+  [Priority.Low]: 'border-t-sky-400',
 };
 
 const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggleTodo, onDeleteTodo, onUpdateTodo }) => {
@@ -69,8 +70,16 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggleTodo, onDeleteTodo, o
   const isOverdue = todo.dueDate && !todo.completed && new Date(todo.dueDate) < new Date(new Date().setHours(0, 0, 0, 0));
 
   if (isEditing) {
+    const today = new Date().toISOString().split('T')[0];
+    const getMinDateTimeLocal = () => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        return now.toISOString().slice(0, 16);
+    };
+    const minDateTime = getMinDateTimeLocal();
+
     return (
-      <div className="bg-slate-900/80 p-4 rounded-lg space-y-3 border border-slate-700">
+      <div className={`bg-slate-900/80 p-4 rounded-lg space-y-3 border border-slate-700 border-t-4 ${priorityBorderColors[todo.priority]}`}>
         <input
           ref={editInputRef}
           type="text"
@@ -95,12 +104,14 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggleTodo, onDeleteTodo, o
               type="date"
               value={editDueDate}
               onChange={(e) => setEditDueDate(e.target.value)}
+              min={today}
               className="w-full bg-slate-800 border border-slate-600 rounded-md p-2 text-slate-200 focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition"
             />
             <input
               type="datetime-local"
               value={editReminderDate}
               onChange={(e) => setEditReminderDate(e.target.value)}
+              min={minDateTime}
               className="w-full bg-slate-800 border border-slate-600 rounded-md p-2 text-slate-200 focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition"
             />
         </div>
@@ -113,43 +124,60 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggleTodo, onDeleteTodo, o
   }
 
   return (
-    <div className={`flex items-start bg-slate-900/50 backdrop-blur-md p-4 rounded-xl border border-lime-400/20 border-l-4 ${priorityColors[todo.priority]} transition-all duration-300 hover:bg-slate-800/80 hover:border-lime-400/30 ${todo.completed ? 'opacity-50' : ''}`}>
-      <div className="flex-shrink-0 pt-1">
-        <Checkbox
-          checked={todo.completed}
-          onChange={() => onToggleTodo(todo.id)}
-        />
+    <div className={`
+      group relative 
+      bg-slate-800/40 backdrop-blur-md 
+      p-4 rounded-lg 
+      border border-slate-700/50 hover:border-slate-600 
+      transition-all duration-300 
+      border-t-4 ${priorityBorderColors[todo.priority]} 
+      ${todo.completed ? 'opacity-50 saturate-50' : ''}
+    `}>
+      <div className="absolute top-3 right-3 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+        <button onClick={() => setIsEditing(true)} aria-label="Edit task" className="p-2 rounded-full text-slate-400 hover:text-lime-400 bg-slate-900/50 hover:bg-slate-800/80 transition">
+          <PencilIcon />
+        </button>
+        <button onClick={() => onDeleteTodo(todo.id)} aria-label="Delete task" className="p-2 rounded-full text-slate-400 hover:text-red-500 bg-slate-900/50 hover:bg-slate-800/80 transition">
+          <TrashIcon />
+        </button>
       </div>
-      <div className="ml-4 flex-grow">
-        <p className={`text-lg task-text ${todo.completed ? 'completed' : 'text-slate-200'}`}>
-          {todo.text}
-        </p>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${categoryColors[todo.category]} inline-block`}>
-                {todo.category}
-            </span>
+
+      <div className="flex items-start">
+        <div className="flex-shrink-0 pt-1">
+          <Checkbox
+            checked={todo.completed}
+            onChange={() => onToggleTodo(todo.id)}
+          />
+        </div>
+        <div className="ml-4 flex-grow pr-16">
+          <p className={`text-lg font-semibold task-text ${todo.completed ? 'completed' : 'text-slate-100'}`}>
+            {todo.text}
+          </p>
+        </div>
+      </div>
+
+      <div className="my-3 h-px bg-slate-700/60" />
+      
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
+        <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${categoryColors[todo.category]}`}>
+          {todo.category}
+        </span>
+        
+        <div className="flex items-center gap-4">
             {todo.dueDate && (
-                <div className={`flex items-center gap-1.5 text-xs transition-colors duration-300 ${isOverdue ? 'text-red-400 font-semibold' : 'text-slate-400'}`}>
+                <div className={`flex items-center gap-1.5 transition-colors duration-300 ${isOverdue ? 'text-red-400 font-semibold' : 'text-slate-400'}`}>
                     <CalendarIcon />
                     <span>{new Date(todo.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</span>
-                    {isOverdue && <span className="font-bold">(Overdue)</span>}
+                    {isOverdue && <span className="text-xs">(Overdue)</span>}
                 </div>
             )}
              {todo.reminderDate && (
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <div className="flex items-center gap-1.5 text-slate-400">
                     <BellIcon />
                     <span>{new Date(todo.reminderDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
                 </div>
             )}
         </div>
-      </div>
-      <div className="flex items-center space-x-1 flex-shrink-0 ml-4">
-        <button onClick={() => setIsEditing(true)} aria-label="Edit task" className="p-2 rounded-full text-slate-400 hover:text-lime-400 hover:bg-slate-700 transition">
-          <PencilIcon />
-        </button>
-        <button onClick={() => onDeleteTodo(todo.id)} aria-label="Delete task" className="p-2 rounded-full text-slate-400 hover:text-red-500 hover:bg-slate-700 transition">
-          <TrashIcon />
-        </button>
       </div>
     </div>
   );

@@ -22,6 +22,14 @@ const TodoForm: React.FC<TodoFormProps> = ({ onAddTodo, onAddTodos }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const today = new Date().toISOString().split('T')[0];
+  const getMinDateTimeLocal = () => {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      return now.toISOString().slice(0, 16);
+  };
+  const minDateTime = getMinDateTimeLocal();
+
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (text.trim()) {
@@ -153,6 +161,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ onAddTodo, onAddTodos }) => {
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
+                  min={today}
                   className="w-full bg-slate-800/70 border border-slate-700/80 rounded-md p-3 text-slate-200 focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition"
                 />
             </div>
@@ -163,6 +172,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ onAddTodo, onAddTodos }) => {
                   type="datetime-local"
                   value={reminderDate}
                   onChange={(e) => setReminderDate(e.target.value)}
+                  min={minDateTime}
                   className="w-full bg-slate-800/70 border border-slate-700/80 rounded-md p-3 text-slate-200 focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition"
                 />
             </div>

@@ -29,9 +29,12 @@
         z-index: -1;
         background-color: #0a0a0f;
         background-image:
-            linear-gradient(rgba(163, 230, 53, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(163, 230, 53, 0.1) 1px, transparent 1px);
-        background-size: 35px 35px;
+            /* Spotlight effect */
+            radial-gradient(circle at var(--mouse-x, 50vw) var(--mouse-y, 50vh), rgba(163, 230, 53, 0.1), transparent 35vw),
+            /* Grid lines */
+            linear-gradient(rgba(163, 230, 53, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(163, 230, 53, 0.05) 1px, transparent 1px);
+        background-size: cover, 35px 35px, 35px 35px;
         animation: pan-grid 60s linear infinite;
       }
       @keyframes pan-grid {
