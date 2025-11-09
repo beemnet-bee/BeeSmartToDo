@@ -52,7 +52,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
       `}</style>
       <div
         ref={modalRef}
-        className="relative bg-slate-900/80 backdrop-blur-2xl border border-lime-400/30 rounded-2xl w-full max-w-lg pt-12 p-6 md:p-8 shadow-2xl shadow-lime-900/20 animate-slide-up"
+        className="relative bg-slate-900/80 backdrop-blur-2xl border border-lime-400/30 rounded-2xl w-full max-w-lg flex flex-col max-h-[90vh] shadow-2xl shadow-lime-900/20 animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -64,7 +64,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        {children}
+        <div className="pt-12 p-6 md:p-8 overflow-y-auto">
+             {children}
+        </div>
       </div>
     </div>
   );
