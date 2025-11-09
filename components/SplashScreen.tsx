@@ -3,7 +3,7 @@ import { BeeIcon } from './icons/BeeIcon';
 
 const SplashScreen: React.FC = () => {
   return (
-    <div className="fixed inset-0 bg-[#1a103c] flex flex-col items-center justify-center z-50 animate-fadeOut">
+    <div className="fixed inset-0 bg-[#0a0a0f] flex flex-col items-center justify-center z-50 animate-fadeOut">
       <style>
         {`
           @keyframes fadeOut {
@@ -27,7 +27,7 @@ const SplashScreen: React.FC = () => {
         <div className="mx-auto mb-4 w-24 h-24">
          <BeeIcon />
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-fuchsia-500 to-pink-500 bg-clip-text text-transparent pb-2">
+        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-lime-400 to-cyan-400 bg-clip-text text-transparent pb-2">
           Bee Smart To-Do
         </h1>
         <p className="text-slate-400 mt-2 text-lg">Your hive of productivity</p>

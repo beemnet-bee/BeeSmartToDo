@@ -39,7 +39,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ options, value, onChange, i
       <button
         id={id}
         type="button"
-        className="w-full flex justify-between items-center bg-slate-800/70 border border-slate-700/80 rounded-md p-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 transition"
+        className="w-full flex justify-between items-center bg-slate-800/70 border border-slate-700/80 rounded-md p-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition"
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -54,7 +54,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ options, value, onChange, i
             {options.map(option => (
               <li
                 key={option.value}
-                className={`p-3 text-sm cursor-pointer hover:bg-fuchsia-600/50 ${value === option.value ? 'bg-fuchsia-600' : 'text-slate-200'}`}
+                className={`p-3 text-sm cursor-pointer hover:bg-lime-500/50 ${value === option.value ? 'bg-lime-500 text-slate-900' : 'text-slate-200'}`}
                 onClick={() => handleSelect(option.value)}
                 role="option"
                 aria-selected={value === option.value}

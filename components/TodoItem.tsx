@@ -126,4 +126,34 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggleTodo, onDeleteTodo, o
           {todo.text}
         </p>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${categoryColors[todo.category]} inline
+            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${categoryColors[todo.category]} inline-block`}>
+                {todo.category}
+            </span>
+            {todo.dueDate && (
+                <div className={`flex items-center gap-1.5 text-xs ${isOverdue ? 'text-red-400 font-semibold' : 'text-slate-400'}`}>
+                    <CalendarIcon />
+                    <span>{new Date(todo.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</span>
+                    {isOverdue && <span className="font-bold">(Overdue)</span>}
+                </div>
+            )}
+             {todo.reminderDate && (
+                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                    <BellIcon />
+                    <span>{new Date(todo.reminderDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                </div>
+            )}
+        </div>
+      </div>
+      <div className="flex items-center space-x-1 flex-shrink-0 ml-4">
+        <button onClick={() => setIsEditing(true)} aria-label="Edit task" className="p-2 rounded-full text-slate-400 hover:text-lime-400 hover:bg-slate-700 transition">
+          <PencilIcon />
+        </button>
+        <button onClick={() => onDeleteTodo(todo.id)} aria-label="Delete task" className="p-2 rounded-full text-slate-400 hover:text-red-500 hover:bg-slate-700 transition">
+          <TrashIcon />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default TodoItem;

@@ -18,10 +18,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
 
@@ -31,19 +33,31 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 flex items-center justify-center p-4 animate-fade-in"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-fade-in { animation: fade-in 0.2s ease-out; }
+        @keyframes slide-up {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-up { animation: slide-up 0.3s ease-out; }
+      `}</style>
       <div
         ref={modalRef}
-        className="relative bg-slate-900/80 backdrop-blur-2xl border border-fuchsia-500/30 rounded-2xl w-full max-w-lg p-6 shadow-2xl shadow-fuchsia-900/20"
+        className="relative bg-slate-900/80 backdrop-blur-2xl border border-lime-400/30 rounded-2xl w-full max-w-lg pt-12 p-6 md:p-8 shadow-2xl shadow-lime-900/20 animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-slate-400 hover:text-white transition-colors p-1"
+          className="absolute top-3 right-3 text-slate-400 hover:text-white transition-colors p-1 rounded-full bg-slate-800/50 hover:bg-slate-700/80 z-10"
           aria-label="Close modal"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -17,7 +17,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ onAddTodo, onAddTodos }) => {
   const [priority, setPriority] = useState<Priority>(Priority.Medium);
   const [dueDate, setDueDate] = useState('');
   const [reminderDate, setReminderDate] = useState('');
-  const [isSmartAdd, setIsSmartAdd] = useState(false);
+  const [activeTab, setActiveTab] = useState<'manual' | 'smart'>('manual');
   const [smartText, setSmartText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,28 +53,37 @@ const TodoForm: React.FC<TodoFormProps> = ({ onAddTodo, onAddTodos }) => {
     }
   };
 
+  const TabButton: React.FC<{ tabName: 'manual' | 'smart'; label: string; }> = ({ tabName, label }) => (
+    <button
+      type="button"
+      onClick={() => setActiveTab(tabName)}
+      className={`px-4 py-2 text-sm font-semibold rounded-md transition-all duration-200 outline-none w-full ${
+        activeTab === tabName
+          ? 'bg-lime-500 text-slate-900 shadow-lg shadow-lime-500/30'
+          : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+      }`}
+    >
+      {label}
+    </button>
+  );
+
   return (
-    <div className="relative">
-      <div className="flex justify-between items-center mb-4">
+    <div>
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-lime-400">Add New Task(s)</h2>
-        <button
-          onClick={() => setIsSmartAdd(!isSmartAdd)}
-          className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 focus-visible:ring-lime-500 ${
-            isSmartAdd
-              ? 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600/50'
-              : 'bg-lime-500 text-slate-900 hover:bg-lime-600 shadow-lg shadow-lime-500/30'
-          }`}
-        >
-          <SparklesIcon />
-          {isSmartAdd ? 'Use Manual Form' : 'Use Smart Add'}
-        </button>
+        <p className="text-slate-400 mt-1 text-sm">Choose manual entry for one task or use Smart Add for multiple.</p>
       </div>
 
-      {isSmartAdd ? (
+      <div className="grid grid-cols-2 gap-2 p-1 bg-slate-800/60 rounded-lg mb-6">
+        <TabButton tabName="manual" label="Manual Entry" />
+        <TabButton tabName="smart" label="Smart Add" />
+      </div>
+
+      {activeTab === 'smart' ? (
         <form onSubmit={handleSmartSubmit} className="space-y-4">
           <div>
             <label htmlFor="smart-task" className="block text-sm font-medium text-slate-400 mb-1">
-              Describe your task(s), one per line. (e.g., "Finish report by 5pm Friday")
+              Describe your task(s), one per line.
             </label>
             <textarea
               id="smart-task"
@@ -92,7 +101,15 @@ const TodoForm: React.FC<TodoFormProps> = ({ onAddTodo, onAddTodos }) => {
             disabled={isLoading || !smartText.trim()}
             className="w-full flex justify-center items-center gap-2 bg-lime-500 hover:bg-lime-600 disabled:bg-lime-500/50 disabled:text-gray-800 disabled:cursor-not-allowed text-slate-900 font-bold py-3 px-4 rounded-md transition-all duration-300 shadow-lg shadow-lime-500/30"
           >
-            {isLoading ? 'Parsing...' : <><SparklesIcon/> Add Smart Tasks</>}
+            {isLoading ? (
+                <>
+                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Parsing...</span>
+                </>
+            ) : <><SparklesIcon/> Add Smart Tasks</>}
           </button>
         </form>
       ) : (
@@ -154,17 +171,6 @@ const TodoForm: React.FC<TodoFormProps> = ({ onAddTodo, onAddTodos }) => {
             <PlusIcon /> Add Task
           </button>
         </form>
-      )}
-      {isLoading && (
-         <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
-             <div className="flex items-center gap-2 text-lime-400">
-                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Parsing Tasks...</span>
-             </div>
-         </div>
       )}
     </div>
   );
